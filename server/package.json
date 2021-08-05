@@ -1,0 +1,33 @@
+{
+  "name": "quotes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "nodemon",
+    "test": "jest",
+    "dev": "nodemon",
+    "debug": "nodemon --watch src/**/* -e ts,json --exec node --inspect-brk=9000 -r ts-node/register src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/fuzzyset": "^1.0.2",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.4.5",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12",
+    "ts-jest": "^27.0.4",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fuzzyset": "^1.0.6",
+    "subtitle": "^4.1.0"
+  }
+}
