@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { NodeList, parseSync } from "subtitle";
+import { NodeCue, NodeList, parseSync } from "subtitle";
 import { snippetRaw } from "../../../client/src/types";
 
 export const getNodes = () => {
@@ -21,16 +21,14 @@ const nodesToText = (nodes: NodeList) => {
   return out;
 };
 
-const getWords = (nodes: NodeList) => {
+const getWords = (nodes: NodeCue[]) => {
   let out: { word: string; node: number }[] = [];
   for (const [idx, node] of nodes.entries()) {
-    if (node.type === "cue") {
-      const rawString = node.data.text;
-      const string = rawString.replace(/(\r\n|\n|\r)/gm, " ");
-      const words = string.split(" ");
-      for (const word of words) {
-        out.push({ word, node: idx });
-      }
+    const rawString = node.data.text;
+    const string = rawString.replace(/(\r\n|\n|\r)/gm, " ");
+    const words = string.split(" ");
+    for (const word of words) {
+      out.push({ word, node: idx });
     }
   }
 
@@ -46,57 +44,40 @@ if word in node
 else 
   return null
 */
-export function findAllMatches(nodes: NodeList, sentence: string) {
+export function findAllMatches(nodes: NodeCue[], sentence: string) {
   const words = getWords(nodes);
   const qs = sentence.split(" ");
 
   const out: snippetRaw[] = [];
 
-  let wordIndex = 0;
-  let qIndex = 0;
-  while (wordIndex < words.length) {
-    const word = words[wordIndex];
-    const q = qs[qIndex];
-    if (word.word.includes(q)) {
-      //we've found the last word
-      if (qIndex === qs.length - 1) {
-        //move the whole phraze to the begginging to ge stuff
-        const startWord = words[wordIndex - qIndex];
-        let fullText = "";
+  for (let wordIndex = 0; wordIndex < words.length; wordIndex++) {
+    let matches = 0;
+    for (const q of qs) {
+      let word = words[wordIndex + matches];
 
-        //do this this to add a space between nodes, but
-        //do not add a space after the last node
-        for (let i = startWord.node; i < word.node; i++) {
-          fullText += (nodes[i].data as any).text + " ";
-        }
-        fullText += (nodes[word.node].data as any).text;
-        out.push({ start: startWord.node, end: word.node, text: fullText });
+      if (!word.word.includes(q)) {
+        break;
+      }
+      matches++;
 
-        //move the word and restart the query
-        wordIndex++;
-        qIndex = 0;
-      }
-      //we've found the word, but it's not the last one
-      else {
-        //move the word and the query word
-        wordIndex++;
-        qIndex++;
-      }
-    } else {
-      //if we havent' been building, just move the word,
-      if (qIndex === 0) {
-        wordIndex++;
-      }
-      //otherwise keep the word and stop building
-      else {
-        qIndex = 0;
+      if (matches === qs.length) {
+        const startWord = words[wordIndex];
+        const endWord = words[wordIndex + matches - 1];
+        const fullText = nodes
+          .slice(startWord.node, word.node + 1)
+          .map((i) => i.data.text)
+          .join(" ");
+        out.push({ text: fullText, start: startWord.node, end: endWord.node });
+        //OPTIMAZATION: move wordIndex to last word we used. then after 'for loop'++, it will become
+        //the word after it, so we skip all the word that we've already chosen
+        wordIndex = wordIndex + matches - 1;
       }
     }
   }
   return out;
 }
 
-export const findInEpisode = (nodes: NodeList, sentence: string) => {
+export const findInEpisode = (nodes: NodeCue[], sentence: string) => {
   const result = findAllMatches(nodes, sentence);
   return result;
 };

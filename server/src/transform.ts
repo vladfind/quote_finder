@@ -18,9 +18,7 @@ export function transformToJson() {
     for (const season of seasons) {
       const episodes = getEpisodes(show, season, true);
       for (const episode of episodes) {
-        console.log("here");
         const nodes = getNodesFromEpisodeSTR(show, season, episode);
-        console.log("not here");
         if (!fs.existsSync(`subs/${show}`)) fs.mkdirSync(`subs/${show}`);
         if (!fs.existsSync(`subs/${show}/${season}`))
           fs.mkdirSync(`subs/${show}/${season}`);
