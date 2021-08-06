@@ -2,7 +2,7 @@ import fsA from "fs/promises";
 import { Episode } from "../../../client/src/types";
 import { getRealTime, getEpisodeName, getEpisodeOrder } from "../files/files";
 import { findInEpisode } from "./inEpisode";
-import { Node } from "subtitle";
+import { NodeCue } from "subtitle";
 import { performance } from "perf_hooks";
 
 let getShowT = 0;
@@ -43,7 +43,7 @@ const getNodesFromEpisodeA = async (
   const start = performance.now();
   const filePath = `subs/${show}/${season}/${episode}`;
   const file = await fsA.readFile(filePath);
-  const nodes: Node[] = JSON.parse(file.toString());
+  const nodes: NodeCue[] = JSON.parse(file.toString());
   const end = performance.now();
   getNodesT += end - start;
   return nodes;

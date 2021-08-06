@@ -1,4 +1,4 @@
-import { map, NodeCue, NodeList, parse, parseSync, Node } from "subtitle";
+import { NodeCue, parseSync } from "subtitle";
 import { findInEpisode } from "./inEpisode";
 import { Episode } from "../../../client/src/types";
 import fs from "fs";
@@ -34,7 +34,10 @@ export const getNodesFromEpisodeSTR = (
 ) => {
   const file = fs.readFileSync(`subsRaw/${show}/${season}/${episode}`);
   const text = file.toString();
-  return parseSync(text);
+  const nodes = parseSync(text);
+  //get only important text nodes
+  const out = nodes.filter((node) => node.type === "cue") as NodeCue[];
+  return out;
 };
 
 export const getNodesFromEpisode = (
@@ -43,7 +46,7 @@ export const getNodesFromEpisode = (
   episode: string
 ) => {
   const file = fs.readFileSync(`subs/${show}/${season}/${episode}`);
-  const nodes: Node[] = JSON.parse(file.toString());
+  const nodes: NodeCue[] = JSON.parse(file.toString());
   return nodes;
 };
 

@@ -1,14 +1,14 @@
 import { findAllMatches, getNodes } from "../src/find/inEpisode";
 import { snippetRaw } from "../../client/src/types";
-import { Node } from "subtitle";
+import { NodeCue } from "subtitle";
 
-const getNode = (text: string): Node => {
+const getNode = (text: string): NodeCue => {
   return { type: "cue", data: { text, start: 0, end: 0 } };
 };
 
 describe("findAllMatches", () => {
   it("matches: hello world", () => {
-    const nodes = [] as Node[];
+    const nodes = [] as NodeCue[];
     nodes.push(getNode("vlad"));
     nodes.push(getNode("hello"));
     nodes.push(getNode("world"));
@@ -17,9 +17,22 @@ describe("findAllMatches", () => {
     const out: snippetRaw[] = [{ start: 1, end: 2, text: "hello world" }];
     expect(findAllMatches(nodes, "hello world")).toEqual(out);
   });
+  it("matches: hello world to you", () => {
+    const nodes = [] as NodeCue[];
+    nodes.push(getNode("vlad"));
+    nodes.push(getNode("hello"));
+    nodes.push(getNode("world"));
+    nodes.push(getNode("to you"));
+    nodes.push(getNode("there"));
+
+    const out: snippetRaw[] = [
+      { start: 1, end: 3, text: "hello world to you" },
+    ];
+    expect(findAllMatches(nodes, "hello world to you")).toEqual(out);
+  });
 
   it("matches: good", () => {
-    const nodes = [] as Node[];
+    const nodes = [] as NodeCue[];
     nodes.push(getNode("All right Jim your quarterlies look very good."));
     nodes.push(getNode("How the thing is going at the library?"));
     nodes.push(getNode("Oh I told you couldn't closet so"));
@@ -36,7 +49,7 @@ describe("findAllMatches", () => {
   });
 
   it("matches nothing", () => {
-    const nodes = [] as Node[];
+    const nodes = [] as NodeCue[];
     nodes.push(getNode("All right Jim your quarterlies look very good."));
     nodes.push(getNode("How the thing is going at the library?"));
     nodes.push(getNode("Oh I told you couldn't closet so"));
@@ -46,7 +59,7 @@ describe("findAllMatches", () => {
   });
 
   it("misdirect #1", () => {
-    const nodes = [] as Node[];
+    const nodes = [] as NodeCue[];
     nodes.push(getNode("1 2 3"));
     nodes.push(getNode("1 2 3 4"));
 
