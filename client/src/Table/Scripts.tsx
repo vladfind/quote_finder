@@ -21,20 +21,20 @@ import {
 import { Episode, snippet } from "../types";
 import { Close as CloseIcon } from "@material-ui/icons";
 
-const stringToSeconds = (text: string) => {
+export const stringToSeconds = (text: string) => {
   const timeParts = text.split(":");
   switch (timeParts.length) {
     case 1:
       return Number(timeParts[0]);
     case 2: {
-      const seconds = Number(timeParts[0]);
-      const minutes = Number(timeParts[1]) * 60;
+      const minutes = Number(timeParts[0]) * 60;
+      const seconds = Number(timeParts[1]);
       return seconds + minutes;
     }
     case 3: {
-      const seconds = Number(timeParts[0]);
+      const hours = Number(timeParts[0]) * 60 * 60;
       const minutes = Number(timeParts[1]) * 60;
-      const hours = Number(timeParts[2]) * 60 * 60;
+      const seconds = Number(timeParts[2]);
       return seconds + minutes + hours;
     }
     default:
@@ -86,7 +86,10 @@ export const Script: React.FC<ScriptProps> = ({ episode, script, onClose }) => {
   const included = useMemo(() => {
     return script.filter((node) => {
       for (const snippet of snippets) {
-        if (node.start === snippet.start && node.end === snippet.end) {
+        if (
+          stringToSeconds(node.start) >= stringToSeconds(snippet.start) &&
+          stringToSeconds(node.end) <= stringToSeconds(snippet.end)
+        ) {
           return true;
         }
       }
